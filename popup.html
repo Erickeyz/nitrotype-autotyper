@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NitroType AutoTyper</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=DM+Mono:wght@400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0f14;
+      --surface:  #161a23;
+      --border:   #252b38;
+      --accent:   #00e5ff;
+      --accent2:  #ff3c6e;
+      --text:     #e8edf5;
+      --muted:    #5a637a;
+      --glow:     0 0 18px rgba(0,229,255,.35);
+    }
+
+    body {
+      width: 310px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 18px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0,229,255,.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .logo {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), #0075ff);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+      box-shadow: var(--glow);
+      flex-shrink: 0;
+    }
+    .title-block h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      color: var(--accent);
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    .title-block p {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+      letter-spacing: .04em;
+    }
+
+    /* ── Status pill ── */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 14px 18px 0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 11px;
+      color: var(--muted);
+      min-height: 34px;
+    }
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+      transition: background .3s;
+    }
+    .status-bar.running .dot  { background: #00e676; box-shadow: 0 0 8px #00e67699; animation: pulse 1s infinite; }
+    .status-bar.running       { border-color: #00e67644; color: #00e676; }
+    .status-bar.error .dot    { background: var(--accent2); }
+    .status-bar.error         { border-color: #ff3c6e44; color: var(--accent2); }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+    /* ── Controls ── */
+    .controls {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .field label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 7px;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .field label span {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: var(--glow);
+      cursor: pointer;
+      transition: transform .15s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    input[type="range"].red::-webkit-slider-thumb { background: var(--accent2); box-shadow: 0 0 12px rgba(255,60,110,.4); }
+
+    /* ── Buttons ── */
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      padding: 0 18px 16px;
+    }
+
+    button {
+      flex: 1;
+      padding: 11px 0;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    #startBtn {
+      background: linear-gradient(135deg, var(--accent), #0075ff);
+      color: #000;
+      box-shadow: var(--glow);
+    }
+    #startBtn:hover { transform: translateY(-1px); box-shadow: 0 0 24px rgba(0,229,255,.5); }
+    #startBtn:active { transform: translateY(0); }
+    #startBtn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+    #stopBtn {
+      background: transparent;
+      color: var(--accent2);
+      border: 1px solid var(--accent2);
+    }
+    #stopBtn:hover { background: rgba(255,60,110,.1); }
+    #stopBtn:disabled { opacity: .3; cursor: not-allowed; }
+
+    /* ── Footer ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 9px 18px;
+      font-size: 10px;
+      color: var(--muted);
+      text-align: center;
+      letter-spacing: .03em;
+    }
+    .footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo">⚡</div>
+    <div class="title-block">
+      <h1>AutoTyper</h1>
+      <p>NitroType Bot · v1.0</p>
+    </div>
+  </div>
+
+  <div class="status-bar idle" id="statusBar">
+    <div class="dot"></div>
+    <span id="statusText">Idle — open a race to begin</span>
+  </div>
+
+  <div class="controls">
+
+    <div class="field">
+      <label>Speed (WPM) <span id="wpmVal">120</span></label>
+      <!-- I updated the max value to 500 here -->
+      <input type="range" id="wpmSlider" min="30" max="500" value="120" step="5" />
+    </div>
+
+    <div class="field">
+      <label>Typo rate <span id="errorVal">0%</span></label>
+      <input type="range" id="errorSlider" class="red" min="0" max="15" value="0" step="1" />
+    </div>
+
+  </div>
+
+  <div class="btn-row">
+    <button id="startBtn">▶ Start</button>
+    <button id="stopBtn" disabled>■ Stop</button>
+  </div>
+
+  <div class="btn-row" style="padding-top:0">
+    <button id="diagBtn" style="background:transparent;color:var(--muted);border:1px solid var(--border);font-size:10px">⚙ Diagnose (check console)</button>
+  </div>
+  
+  <div class="footer">
+    Navigate to <a href="https://www.nitrotype.com" target="_blank">nitrotype.com</a> and start a race first.
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
